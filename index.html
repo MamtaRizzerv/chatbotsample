@@ -3,196 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rizzerv Support — Scripted vs AI</title>
+<title>Rizzerv</title>
 <style>
   :root{
-    --ink:#1c1620;
+    --bg:#100810;
     --plum:#4a2d4a;
-    --plum-deep:#2e1b2e;
-    --copper:#c0793f;
+    --plum-deep:#241324;
+    --copper:#d68a52;
+    --copper-deep:#b9733d;
     --copper-soft:#f4e6d8;
+    --rose:#e9b89c;
     --cream:#faf6f1;
-    --card:#ffffff;
-    --bot:#efe8e2;
-    --ai-tint:#fcf3ea;
     --line:#e7ded6;
     --muted:#8a7d83;
-    --warn:#a8553a;
     --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:var(--sans);background:var(--cream);color:var(--ink);line-height:1.5}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--cream);overflow:hidden}
 
-  .wrap{max-width:1180px;margin:0 auto;padding:56px 32px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
-  @media(max-width:920px){.wrap{grid-template-columns:1fr;gap:40px;padding:36px 22px}}
+  #stars{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(130% 100% at 50% 35%, #241324 0%, #160c16 55%, #0c060c 100%);cursor:crosshair}
 
-  /* ---- left: the pitch ---- */
-  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--copper);font-weight:700;margin-bottom:18px}
-  .pitch h1{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1.08;letter-spacing:-.015em;margin:0 0 20px}
-  .pitch h1 em{font-style:italic;color:var(--plum)}
-  .lede{font-size:17px;color:#5a4f54;max-width:46ch;margin:0 0 32px}
-  .thesis{border-left:3px solid var(--copper);padding:4px 0 4px 20px;margin:0 0 28px}
-  .thesis p{margin:0 0 12px;font-size:15.5px}
-  .thesis p:last-child{margin:0}
-  .thesis b{color:var(--plum-deep)}
-  .legend{display:flex;flex-direction:column;gap:14px;margin-top:8px}
-  .legend-row{display:flex;gap:13px;align-items:flex-start;font-size:14px}
-  .swatch{flex:none;width:14px;height:14px;border-radius:4px;margin-top:3px}
-  .sw-script{background:var(--bot);border:1px solid var(--line)}
-  .sw-ai{background:var(--ai-tint);border:1px solid var(--copper)}
-  .legend-row b{display:block;color:var(--plum-deep);margin-bottom:1px}
-  .legend-row span{color:var(--muted)}
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;justify-content:flex-end;padding:24px 30px}
+  .app-btn{color:rgba(250,246,241,.82);text-decoration:none;font-size:13.5px;border:1px solid rgba(250,246,241,.22);
+    padding:8px 16px;border-radius:999px;transition:.18s;backdrop-filter:blur(4px)}
+  .app-btn:hover{color:#fff;border-color:var(--rose);background:rgba(233,184,156,.1)}
 
-  /* ---- right: the live demo ---- */
-  .demo{position:sticky;top:40px}
-  .phone{background:var(--cream);border:1px solid var(--line);border-radius:24px;overflow:hidden;
-    box-shadow:0 30px 70px -30px rgba(46,27,46,.45);display:flex;flex-direction:column;height:680px;max-height:82vh}
+  .tagline{position:fixed;left:0;right:0;bottom:16%;z-index:4;text-align:center;pointer-events:none;
+    font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:rgba(233,184,156,.62);
+    opacity:0;animation:fade 1.2s ease 1.1s forwards}
+  @keyframes fade{to{opacity:1}}
+  @media(max-width:600px){.tagline{bottom:20%;letter-spacing:.22em;font-size:11px}}
 
-  .ph-head{background:var(--plum);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;flex:none}
-  .ph-back{background:rgba(255,255,255,.14);border:none;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;display:none;place-items:center;flex:none}
-  .ph-back svg{width:17px;height:17px}
-  .ph-back.show{display:grid}
-  .ph-avatar{width:40px;height:40px;border-radius:50%;background:var(--copper);display:grid;place-items:center;font-weight:700;font-size:17px;color:#fff;font-family:var(--serif);flex:none}
-  .ph-titles{min-width:0}
-  .ph-titles h2{margin:0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ph-titles span{font-size:12px;color:rgba(255,255,255,.72);display:flex;align-items:center;gap:6px}
+  /* ---------- floating support widget ---------- */
+  #launch{position:fixed;bottom:24px;right:24px;z-index:50;width:62px;height:62px;border:none;border-radius:50%;
+    cursor:pointer;background:linear-gradient(135deg,var(--copper),var(--copper-deep));color:#fff;
+    box-shadow:0 14px 34px -8px rgba(0,0,0,.7);display:grid;place-items:center;transition:transform .2s}
+  #launch:hover{transform:translateY(-2px)}
+  #launch svg{width:27px;height:27px;transition:opacity .15s, transform .25s;grid-area:1/1}
+  #launch .ic-close{opacity:0;transform:rotate(-45deg)}
+  #launch.open .ic-chat{opacity:0;transform:rotate(45deg)}
+  #launch.open .ic-close{opacity:1;transform:rotate(0)}
+
+  .widget{position:fixed;bottom:100px;right:24px;z-index:49;width:374px;max-width:calc(100vw - 32px);
+    height:600px;max-height:calc(100vh - 130px);background:var(--cream);border:1px solid var(--line);
+    border-radius:22px;overflow:hidden;box-shadow:0 28px 70px -24px rgba(0,0,0,.7);color:#1c1620;
+    display:flex;flex-direction:column;opacity:0;transform:translateY(16px) scale(.98);pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease}
+  .widget.open{opacity:1;transform:none;pointer-events:auto}
+
+  .w-head{background:var(--plum);color:#fff;padding:15px 16px;display:flex;align-items:center;gap:11px;flex:none}
+  .w-back{background:rgba(255,255,255,.14);border:none;color:#fff;width:31px;height:31px;border-radius:9px;cursor:pointer;display:none;place-items:center;flex:none}
+  .w-back svg{width:16px;height:16px}
+  .w-back.show{display:grid}
+  .w-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,var(--copper),var(--rose));display:grid;place-items:center;font-weight:700;font-size:16px;color:#fff;font-family:var(--serif);flex:none}
+  .w-titles{min-width:0;flex:1}
+  .w-titles h2{margin:0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .w-titles span{font-size:12px;color:rgba(255,255,255,.72);display:flex;align-items:center;gap:6px}
   .live-dot{width:7px;height:7px;border-radius:50%;background:#67d18d;flex:none}
+  .w-close{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:22px;line-height:1;padding:0 4px;flex:none}
+  .w-close:hover{color:#fff}
 
-  .ph-body{flex:1;overflow-y:auto;padding:18px 16px}
-
+  .w-body{flex:1;overflow-y:auto;padding:18px 15px}
   .intro{font-size:13.5px;color:#6a5c61;margin:2px 4px 16px}
   .sec-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0 4px 11px}
-
-  /* list rows (Swiggy/Zomato style) */
   .list{display:flex;flex-direction:column;gap:9px}
-  .row{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:#fff;
-    border:1px solid var(--line);border-radius:14px;padding:14px 15px;cursor:pointer;font-family:inherit;
-    transition:border-color .15s, box-shadow .15s, transform .05s}
+  .row{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:#fff;border:1px solid var(--line);
+    border-radius:14px;padding:13px 15px;cursor:pointer;font-family:inherit;transition:border-color .15s, box-shadow .15s, transform .05s}
   .row:hover{border-color:var(--copper);box-shadow:0 6px 18px -10px rgba(74,45,74,.4)}
   .row:active{transform:scale(.995)}
-  .r-ico{flex:none;width:38px;height:38px;border-radius:11px;background:var(--copper-soft);display:grid;place-items:center;font-size:18px}
+  .r-ico{flex:none;width:37px;height:37px;border-radius:11px;background:var(--copper-soft);display:grid;place-items:center;font-size:18px}
   .r-text{flex:1;min-width:0}
   .r-title{font-size:14px;font-weight:600;color:var(--plum-deep)}
   .r-sub{font-size:12px;color:var(--muted);margin-top:1px}
   .r-chev{flex:none;color:var(--copper);font-size:18px;font-weight:700;line-height:1}
   .row.q .r-dot{flex:none;width:7px;height:7px;border-radius:50%;background:var(--copper)}
-  .row.q .r-title{font-weight:500;color:var(--ink)}
-
-  /* answer screen */
-  .answer .q-asked{font-family:var(--serif);font-size:19px;line-height:1.25;color:var(--plum-deep);margin:2px 4px 16px}
-  .cards{display:flex;flex-direction:column;gap:12px}
-  .card{border-radius:15px;padding:15px 16px;font-size:14px;line-height:1.55;white-space:pre-wrap}
-  .card-script{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .row.q .r-title{font-weight:500;color:#1c1620}
+  .answer .q-asked{font-family:var(--serif);font-size:18px;line-height:1.25;color:var(--plum-deep);margin:2px 4px 15px}
+  .card{border-radius:15px;padding:15px 16px;font-size:14px;line-height:1.55;white-space:pre-wrap;background:#fff;border:1px solid var(--line)}
   .more{margin-top:18px;text-align:center}
   .more button{background:none;border:none;color:var(--copper);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}
   .more button:hover{text-decoration:underline}
-
   .view{animation:slidein .22s ease}
   @keyframes slidein{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
-  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media(prefers-reduced-motion:reduce){.tagline{animation:none;opacity:1}.view{animation:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- ====== INTRO COLUMN ====== -->
-  <div class="pitch">
-    <div class="eyebrow">Rizzerv · Support</div>
-    <h1>Help that's <em>one tap</em> away.</h1>
-    <p class="lede">A guided, rule-based support flow. Users browse from a topic down to their exact question and get a clear, consistent answer — no waiting on an agent, no AI cost, no wrong answers.</p>
+<canvas id="stars"></canvas>
+<div class="topbar"><a href="#" class="app-btn">Get the app</a></div>
+<div class="tagline">Salon &amp; stylist booking</div>
 
-    <div class="thesis">
-      <p><b>Browse, don't search.</b> Topics open into questions, questions open into the fix. People recognise their issue instead of guessing what to type.</p>
-      <p><b>Always correct.</b> Every answer is curated by your team, so the bot never improvises policy or invents a refund window.</p>
-      <p><b>Free and instant.</b> Runs entirely in the browser — no backend, no per-message cost, answers appear immediately.</p>
+<!-- ============ FLOATING SUPPORT WIDGET ============ -->
+<button id="launch" aria-label="Open support">
+  <svg class="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+  <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+</button>
+
+<div class="widget" id="widget" role="dialog" aria-label="Rizzerv support">
+  <div class="w-head">
+    <button class="w-back" id="back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="w-avatar">R</div>
+    <div class="w-titles">
+      <h2 id="w-title">Rizzerv Support</h2>
+      <span id="w-sub"><i class="live-dot"></i> How can we help?</span>
     </div>
-
-    <div class="legend">
-      <div class="legend-row"><span class="swatch sw-ai"></span><div><b>Curated answers</b><span>16 questions across 6 topics, easy to extend.</span></div></div>
-      <div class="legend-row"><span class="swatch sw-script"></span><div><b>Escalation ready</b><span>Anything off-script can hand off to a human.</span></div></div>
-    </div>
+    <button class="w-close" id="close" aria-label="Close">&times;</button>
   </div>
-
-  <!-- ====== LIVE DEMO COLUMN ====== -->
-  <div class="demo">
-    <div class="phone">
-      <div class="ph-head">
-        <button class="ph-back" id="back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <div class="ph-avatar">R</div>
-        <div class="ph-titles">
-          <h2 id="ph-title">Rizzerv Support</h2>
-          <span id="ph-sub"><i class="live-dot"></i> How can we help?</span>
-        </div>
-      </div>
-      <div class="ph-body" id="body"></div>
-    </div>
-  </div>
-
+  <div class="w-body" id="body"></div>
 </div>
 
 <script>
+/* ============ STAR-PARTICLE WORDMARK "Rizzerv" ============ */
 (function(){
-  // ============================================================
-  //  KNOWLEDGE BASE — every scenario from the doc.
-  //  scripted / llm: the two answers on the answer screen.
-  //  sensitive:true => flag the scripted reply as trust-damaging.
-  // ============================================================
-  const RULES = {
-    "reschedule":{
-      scripted:"To reschedule your appointment, go to My Bookings \u2192 tap the booking \u2192 select Reschedule. Changes must be made at least 2 hours before your appointment.",
-      llm:"I can see you want to reschedule. You can do this from My Bookings up to 2 hours before your slot. If you're within the 2-hour window, the reschedule option will be locked \u2014 in that case you can cancel and rebook, but please check whether a cancellation fee applies to your booking." },
-    "missing":{
-      scripted:"Please check your registered email for a booking confirmation. If you didn't receive one, your booking may not have gone through. Try booking again or contact support.",
-      llm:"This usually happens when a payment step was incomplete or there was a brief app error. Can you confirm if your payment was deducted? If yes, your booking likely exists but may have a sync delay \u2014 try refreshing the app. If it persists, our team will manually verify and confirm your slot." },
-    "cancel-refund":{
-      scripted:"Cancellations made 24 hours before your appointment are eligible for a full refund. Cancellations within 24 hours may incur a fee. Go to My Bookings \u2192 Cancel to proceed.",
-      llm:"Your refund depends on timing. More than 24 hours before your appointment \u2192 full refund within 5\u20137 business days. Within 24 hours \u2192 a cancellation fee may apply depending on the salon's policy. Would you like me to check your specific booking?" },
-    "salon-cancelled":{
-      scripted:"If a salon cancels your appointment, you are eligible for a full refund. Please check your email for a cancellation notice. Refund will be processed within 5\u20137 business days.",
-      llm:"We're sorry the salon cancelled on you \u2014 that's frustrating. Since it was on their end, you're entitled to a full refund with no deductions, reflected in your original payment method within 5\u20137 business days. We'll also flag this cancellation against the salon. Would you like help rebooking with a similar salon nearby?" },
-    "pay-not-confirmed":{
-      scripted:"This can happen due to a network issue. Please wait 10 minutes and refresh the app. If the booking still doesn't appear, contact support with your transaction ID.",
-      llm:"This is one of the most common issues and we'll sort it. Your money is safe \u2014 if payment went through but the booking didn't confirm, the system will either auto-confirm within 10 minutes or trigger an automatic refund within 24 hours. Share your UPI/transaction reference and I'll flag it for priority review." },
-    "double-charge":{
-      scripted:"Please contact support with both transaction IDs and we will process a refund for the duplicate charge within 5\u20137 business days.",
-      llm:"A double charge usually happens when a payment times out and gets retried. Don't worry \u2014 we'll refund the duplicate amount. Please share both transaction IDs or UPI/bank screenshots and our team will process the refund within 3\u20135 business days. Would you like me to raise this as a priority ticket?" },
-    "promo":{
-      scripted:"Please ensure the promo code is entered before payment and hasn't expired. Some codes are valid only for first-time bookings or specific salons. Check Terms & Conditions for the offer.",
-      llm:"Promo codes can fail for a few reasons \u2014 expired, already used, not applicable to this salon, or minimum booking value not met. Which code were you trying? I can check if it's still valid and what conditions apply, or suggest an active offer for your booking." },
-    "review-missing":{
-      scripted:"Reviews go through a moderation process and appear within 24\u201348 hours. If it hasn't appeared after 48 hours, please contact support.",
-      llm:"Reviews on Rizzerv are moderated before going live to keep quality high \u2014 usually up to 48 hours. If your review had external links or certain flagged words, it may be held for manual review. If it's been over 48 hours and still not visible, I can escalate it for a manual check." },
-    "review-pressure":{ sensitive:true,
-      scripted:"Rizzerv does not allow salons to contact users regarding reviews. Please report this to support immediately.",
-      llm:"This is a serious violation of Rizzerv's salon partner policy. Salons are strictly prohibited from contacting users about reviews. Your review is protected and we will not remove it on a salon's request. Please share how they contacted you \u2014 we'll investigate and take action, which may include suspending the salon from the platform." },
-    "delete-account":{
-      scripted:"To delete your account, go to Profile \u2192 Settings \u2192 Delete Account. As per our Data Deletion Policy under DPDP Act 2023, your data will be permanently erased within 30 days.",
-      llm:"We're sorry to see you go. Under Rizzerv's Data Deletion Policy and India's DPDP Act 2023, you can request complete deletion \u2014 profile, booking history, payment records and reviews. It's permanent and can't be undone. You can start it from Profile \u2192 Settings \u2192 Delete Account, or I can raise a manual deletion request right now. Would you like to proceed?" },
-    "app-crash":{
-      scripted:"Please try: 1) Update the app to the latest version. 2) Clear app cache. 3) Restart your phone. If the issue continues, contact support with your device model and OS version.",
-      llm:"Crashes during booking are usually an outdated version or low device memory. First check for an update on the Play Store / App Store. If you're on the latest version, clear the cache from phone settings. Still crashing? Share your phone model and OS version \u2014 we'll log it as a bug for our tech team." },
-    "bad-service":{ sensitive:true,
-      scripted:"Rizzerv does not offer refunds after a service has been completed. If you had a poor experience, please raise a complaint and our team will mediate with the salon.",
-      llm:"We're really sorry you had a poor experience \u2014 that's not our standard. We don't offer monetary refunds after a completed service, but Rizzerv will formally mediate with the salon on your behalf. Depending on the outcome, the salon may offer a complimentary redo or a goodwill discount on your next visit. Please describe what went wrong and share photos if possible \u2014 it strengthens your case significantly." },
-    "stylist-different":{ sensitive:true,
-      scripted:"We're sorry to hear this. Please raise a complaint through the app under My Bookings \u2192 Report Issue. Our team will review and contact you within 48 hours.",
-      llm:"This is a valid service dispute and we take it seriously. If the salon delivered something clearly different from what was discussed, that's a breach of service. Rizzerv will step in and mediate, and the salon must respond formally. Please document it with photos now while it's fresh. We'll review within 24\u201348 hours and work toward a resolution, which may include a complimentary correction at the salon's cost." },
-    "report-salon":{ sensitive:true,
-      scripted:"To report a salon, go to My Bookings \u2192 select the booking \u2192 Review Service. Our team will investigate within 3\u20135 business days.",
-      llm:"Thank you for flagging this \u2014 a safe, professional platform is our priority. Please describe the incident and the salon name. Depending on severity we can issue a formal warning, temporarily suspend their listing, or permanently remove them from Rizzerv. Your identity stays confidential throughout." },
-    "unhygienic":{ sensitive:true,
-      scripted:"We're sorry to hear this. Please report the salon immediately through the Review Page. Our team will investigate and take necessary action.",
-      llm:"This is very concerning and we're treating it as high-priority. Hygiene is a mandatory requirement for all partner salons. Please describe exactly what you saw \u2014 unclean tools, improper sanitization \u2014 and share photos if you have them. We'll escalate to our salon quality team immediately. If you're feeling any health symptoms, please see a doctor and let us know so we can document it in the case file." },
-    "overcharged":{ sensitive:true,
-      scripted:"Prices on Rizzerv are set by the salon and are subject to change. If you were charged differently, please contact the salon directly or raise a dispute through the app.",
-      llm:"Price discrepancies between the app and the salon are a serious concern \u2014 you should always be charged what's displayed. Please share the booking details and the amount actually charged. We'll formally raise it with the salon, and if overcharging is confirmed we'll require them to refund the difference directly. Repeated violations can lead to removal from our platform." }
-  };
+  const canvas=document.getElementById('stars');
+  const ctx=canvas.getContext('2d');
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const PALETTE=['#faf6f1','#faf6f1','#faf6f1','#e9b89c','#d68a52','#c9a0c4'];
+  let W,H,DPR,particles=[],mouse={x:-9999,y:-9999};
 
-  // ============================================================
-  //  NAVIGATION — categories -> questions (each -> a RULE id).
-  //  Vertical list help-center model (Swiggy / Zomato style).
-  // ============================================================
+  function build(){
+    DPR=Math.min(devicePixelRatio||1,2);
+    W=innerWidth;H=innerHeight;
+    canvas.width=W*DPR;canvas.height=H*DPR;
+    canvas.style.width=W+'px';canvas.style.height=H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+
+    const serif=getComputedStyle(document.body).getPropertyValue('--serif')||'Georgia, serif';
+    const off=document.createElement('canvas');
+    off.width=W;off.height=H;
+    const o=off.getContext('2d');
+    let size=Math.min(W*0.165, H*0.34);
+    o.textAlign='center';o.textBaseline='middle';o.fillStyle='#fff';
+    o.font='600 '+size+'px '+serif;
+    while(o.measureText('Rizzerv').width > W*0.82 && size>20){
+      size-=4;o.font='600 '+size+'px '+serif;
+    }
+    o.fillText('Rizzerv', W/2, H*0.46);
+    const data=o.getImageData(0,0,W,H).data;
+    const gap=Math.max(3, Math.round(size/46));
+    particles=[];
+    for(let y=0;y<H;y+=gap){
+      for(let x=0;x<W;x+=gap){
+        if(data[(y*W+x)*4+3]>128){
+          particles.push({
+            hx:x+(Math.random()-.5)*gap, hy:y+(Math.random()-.5)*gap,
+            x:x+(Math.random()-.5)*40, y:y+(Math.random()-.5)*40,
+            vx:0,vy:0,
+            r:Math.random()*1.1+0.7,
+            c:PALETTE[(Math.random()*PALETTE.length)|0],
+            tw:Math.random()*Math.PI*2, ts:0.02+Math.random()*0.04
+          });
+        }
+      }
+    }
+  }
+
+  const R=92, R2=R*R, K=0.9;
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<particles.length;i++){
+      const p=particles[i];
+      const dx=p.x-mouse.x, dy=p.y-mouse.y, d2=dx*dx+dy*dy;
+      let glow=0;
+      if(d2<R2){
+        const d=Math.sqrt(d2)||1, f=(R2-d2)/R2;
+        p.vx+=(dx/d)*f*K; p.vy+=(dy/d)*f*K; glow=f;
+      }
+      p.vx+=(p.hx-p.x)*0.014; p.vy+=(p.hy-p.y)*0.014;
+      p.vx*=0.88; p.vy*=0.88;
+      p.x+=p.vx; p.y+=p.vy;
+      p.tw+=p.ts;
+      const a=0.55+Math.sin(p.tw)*0.32+glow*0.6;
+      ctx.globalAlpha=Math.min(1,a);
+      ctx.fillStyle=p.c;
+      const rr=p.r+glow*1.6;
+      ctx.beginPath();ctx.arc(p.x,p.y,rr,0,6.283);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(!reduce) requestAnimationFrame(frame);
+  }
+
+  addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;},{passive:true});
+  addEventListener('mouseleave',()=>{mouse.x=mouse.y=-9999;});
+  addEventListener('touchmove',e=>{const t=e.touches[0];if(t){mouse.x=t.clientX;mouse.y=t.clientY;}},{passive:true});
+  addEventListener('touchend',()=>{mouse.x=mouse.y=-9999;});
+  let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{build();if(reduce)frame();},150);});
+
+  build();
+  frame();
+})();
+
+/* ============ SUPPORT WIDGET (rule-based) ============ */
+(function(){
+  const RULES = {
+    "reschedule":{ scripted:"To reschedule your appointment, go to My Bookings \u2192 tap the booking \u2192 select Reschedule. Changes must be made at least 2 hours before your appointment." },
+    "missing":{ scripted:"Please check your registered email for a booking confirmation. If you didn't receive one, your booking may not have gone through. Try booking again or contact support." },
+    "cancel-refund":{ scripted:"Cancellations made 24 hours before your appointment are eligible for a full refund. Cancellations within 24 hours may incur a fee. Go to My Bookings \u2192 Cancel to proceed." },
+    "salon-cancelled":{ scripted:"If a salon cancels your appointment, you are eligible for a full refund. Please check your email for a cancellation notice. Refund will be processed within 5\u20137 business days." },
+    "pay-not-confirmed":{ scripted:"This can happen due to a network issue. Please wait 10 minutes and refresh the app. If the booking still doesn't appear, contact support with your transaction ID." },
+    "double-charge":{ scripted:"Please contact support with both transaction IDs and we will process a refund for the duplicate charge within 5\u20137 business days." },
+    "promo":{ scripted:"Please ensure the promo code is entered before payment and hasn't expired. Some codes are valid only for first-time bookings or specific salons. Check Terms & Conditions for the offer." },
+    "review-missing":{ scripted:"Reviews go through a moderation process and appear within 24\u201348 hours. If it hasn't appeared after 48 hours, please contact support." },
+    "review-pressure":{ scripted:"Rizzerv does not allow salons to contact users regarding reviews. Please report this to support immediately." },
+    "delete-account":{ scripted:"To delete your account, go to Profile \u2192 Settings \u2192 Delete Account. As per our Data Deletion Policy under DPDP Act 2023, your data will be permanently erased within 30 days." },
+    "app-crash":{ scripted:"Please try: 1) Update the app to the latest version. 2) Clear app cache. 3) Restart your phone. If the issue continues, contact support with your device model and OS version." },
+    "bad-service":{ scripted:"Rizzerv does not offer refunds after a service has been completed. If you had a poor experience, please raise a complaint and our team will mediate with the salon." },
+    "stylist-different":{ scripted:"We're sorry to hear this. Please raise a complaint through the app under My Bookings \u2192 Report Issue. Our team will review and contact you within 48 hours." },
+    "report-salon":{ scripted:"To report a salon, go to My Bookings \u2192 select the booking \u2192 Review Service. Our team will investigate within 3\u20135 business days." },
+    "unhygienic":{ scripted:"We're sorry to hear this. Please report the salon immediately through the Review Page. Our team will investigate and take necessary action." },
+    "overcharged":{ scripted:"Prices on Rizzerv are set by the salon and are subject to change. If you were charged differently, please contact the salon directly or raise a dispute through the app." }
+  };
   const CATEGORIES = [
     { label:"Bookings", icon:"\uD83D\uDDD3\uFE0F", sub:"Reschedule, missing appointments", items:[
       { q:"How do I reschedule my appointment?", id:"reschedule" },
@@ -224,21 +248,16 @@
     ]}
   ];
 
+  const launch=document.getElementById('launch');
+  const widget=document.getElementById('widget');
   const body=document.getElementById('body');
   const back=document.getElementById('back');
-  const titleEl=document.getElementById('ph-title');
-  const subEl=document.getElementById('ph-sub');
-
-  // view state for step-up back navigation
-  let state={view:'cats', cat:null, item:null};
+  const titleEl=document.getElementById('w-title');
+  const subEl=document.getElementById('w-sub');
+  let state={view:'cats',cat:null,item:null};
 
   function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
-
-  function setHeader(title,sub,showBack){
-    titleEl.textContent=title;
-    subEl.innerHTML=showBack?sub:'<i class="live-dot"></i> '+sub;
-    back.classList.toggle('show',showBack);
-  }
+  function setHeader(title,sub,showBack){titleEl.textContent=title;subEl.innerHTML=showBack?sub:'<i class="live-dot"></i> '+sub;back.classList.toggle('show',showBack);}
 
   function renderCategories(){
     state={view:'cats',cat:null,item:null};
@@ -249,61 +268,39 @@
     const list=el('div','list');
     CATEGORIES.forEach((c,i)=>{
       const row=el('button','row');
-      row.innerHTML='<span class="r-ico">'+c.icon+'</span>'+
-        '<span class="r-text"><span class="r-title">'+c.label+'</span><span class="r-sub">'+c.sub+'</span></span>'+
-        '<span class="r-chev">\u203A</span>';
-      row.onclick=()=>renderQuestions(i);
-      list.appendChild(row);
+      row.innerHTML='<span class="r-ico">'+c.icon+'</span><span class="r-text"><span class="r-title">'+c.label+'</span><span class="r-sub">'+c.sub+'</span></span><span class="r-chev">\u203A</span>';
+      row.onclick=()=>renderQuestions(i);list.appendChild(row);
     });
-    v.appendChild(list);
-    body.replaceChildren(v);body.scrollTop=0;
+    v.appendChild(list);body.replaceChildren(v);body.scrollTop=0;
   }
-
   function renderQuestions(i){
-    state={view:'questions',cat:i,item:null};
-    const c=CATEGORIES[i];
+    state={view:'questions',cat:i,item:null};const c=CATEGORIES[i];
     setHeader(c.label,'Select your question',true);
-    const v=el('div','view');
-    v.appendChild(el('div','sec-label',c.label));
+    const v=el('div','view');v.appendChild(el('div','sec-label',c.label));
     const list=el('div','list');
     c.items.forEach(it=>{
       const row=el('button','row q');
-      row.innerHTML='<span class="r-dot"></span>'+
-        '<span class="r-text"><span class="r-title">'+it.q+'</span></span>'+
-        '<span class="r-chev">\u203A</span>';
-      row.onclick=()=>renderAnswer(i,it);
-      list.appendChild(row);
+      row.innerHTML='<span class="r-dot"></span><span class="r-text"><span class="r-title">'+it.q+'</span></span><span class="r-chev">\u203A</span>';
+      row.onclick=()=>renderAnswer(i,it);list.appendChild(row);
     });
-    v.appendChild(list);
-    body.replaceChildren(v);body.scrollTop=0;
+    v.appendChild(list);body.replaceChildren(v);body.scrollTop=0;
   }
-
   function renderAnswer(i,it){
     state={view:'answer',cat:i,item:it};
-    const r=RULES[it.id];
     setHeader("Answer","Here's how to sort it",true);
     const v=el('div','view answer');
     v.appendChild(el('div','q-asked',it.q));
-    const cards=el('div','cards');
-
-    const s=el('div','card card-script');
-    s.appendChild(document.createTextNode(r.scripted));
-    cards.appendChild(s);
-
-    v.appendChild(cards);
-    const more=el('div','more');
-    const b=el('button',null,'\u2039 Back to '+CATEGORIES[i].label);
-    b.onclick=()=>renderQuestions(i);
-    more.appendChild(b);
-    v.appendChild(more);
+    v.appendChild(el('div','card',null)).appendChild(document.createTextNode(RULES[it.id].scripted));
+    const more=el('div','more');const b=el('button',null,'\u2039 Back to '+CATEGORIES[i].label);
+    b.onclick=()=>renderQuestions(i);more.appendChild(b);v.appendChild(more);
     body.replaceChildren(v);body.scrollTop=0;
   }
+  back.onclick=()=>{ state.view==='answer' ? renderQuestions(state.cat) : renderCategories(); };
 
-  // header back steps up exactly one level
-  back.onclick=()=>{
-    if(state.view==='answer') renderQuestions(state.cat);
-    else renderCategories();
-  };
+  function openW(){widget.classList.add('open');launch.classList.add('open');renderCategories();}
+  function closeW(){widget.classList.remove('open');launch.classList.remove('open');}
+  launch.onclick=()=>widget.classList.contains('open')?closeW():openW();
+  document.getElementById('close').onclick=closeW;
 
   renderCategories();
 })();
